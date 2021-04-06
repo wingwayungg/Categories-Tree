@@ -1,56 +1,32 @@
 import React from "react";
+import { Collapse } from "react-collapse";
 
-let row = 0;
-let column = -1;
-
-function recurTrialAdd(index) {
-}
-
-// function recurTrialHori(listitem){
-//   var isSimpleArray=true;
-//   listitem.forEach(element => {
-//     if (Array.isArray(element)){
-//      isSimpleArray=false;
-//     }
-//   }); 
-
-//   console.log("isSimpleArray",isSimpleArray);
-//   if(isSimpleArray) return listitem.map((item, index)=><div className="Item" key={index}>item</div>)
-//   return 
-// }
-
-function recur(listitem) {
-  //  return <div className="itemColumns">{listitem.map((item, index) => (<div key={index}> {Array.isArray(item) ?  
-  //     <div className="itemRow">{item[0]}{recur(item.slice(1))}</div>: item}</div>))}</div>
-  return;
-
-  //return <div className="itemColumns">{listitem.map((item, index) => (<div key={index}> {Array.isArray(item) ?  
-  //  <div class="itemClass">{recur(item)}</div>: item}</div>))}</div>
-}
-
-class Item extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      id: props.id,
-      title: props.title,
-      parentId: props.parentId,
-      level: props.level,
-      //columnnum: props.columnnum,
-      //rownum : props.rownum,
-      //key: props.key
-    };
-  }
-
-  handleClick = () => this.props.addChild()
-
-  render() {
-    return (
-      <div className="Item" columnnum={this.props.columnnum.toString()} rownum={this.props.rownum.toString()} onClick={() => this.props.onClick()}>
-        {this.props.title}
-      </div>
-    );
-  }
+function Item(props) {
+  return (
+    <div className="item" onClick={props.handleCollapse}>
+      {props.isEditing || !props.title ? (
+        <input
+          type="text"
+          value={props.title}
+          onBlur={props.handleBlur}
+          onChange={props.handleChange}
+          placeholder="Please enter the title"
+          autoFocus
+        />
+      ) : (
+        <span>{props.title}</span>
+      )}
+      <button className="add" onClick={props.addChild}>
+        Add
+      </button>
+      <button className="edit" onClick={props.editChild}>
+        Edit
+      </button>
+      <button className="delete" onClick={props.deleteChild}>
+        Delete
+      </button>
+    </div>
+  );
 }
 
 // export a home page component
@@ -58,132 +34,173 @@ export default class Items extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      listitems: ["sa", ["b1", ["b2", "b3"], ["b4", "b4"]]],
-      row: 0,
-      column: 0
-      //listitems: ["sa", ["b1", ["b2", "b3"], "b4"]]
-      //listitems: ["sa", ["b1", ["b2","b2", "b3"], ["b4", "b4"]], "c"]
+      listItems: [
+        {
+          id: 1,
+          children: [],
+          isEditing: true,
+          isOpened: true,
+          title: "",
+        },
+      ],
+      numOfItemsGenerated: 1,
     };
-    this.recurTrial = this.recurTrial.bind(this);
-    this.addChild = this.addChild.bind(this);
-    //this.recurTrial=this.recurTrial.bind(recurTrial);
+    this.renderList = this.renderList.bind(this);
+    this.renderChild = this.renderChild.bind(this);
+    this.deleteChildren = this.deleteChildren.bind(this);
   }
 
-  recurTrial(listitem, isColumn = true) {
-    // console.log(this.state.row);
-    var isSimpleArray = true;
-    listitem.forEach(element => {
-      if (Array.isArray(element)) {
-        isSimpleArray = false;
+  addChild(id, e) {
+    e.stopPropagation();
+
+    const newIndex = this.state.numOfItemsGenerated + 1;
+    const listItems = this.state.listItems.slice();
+    const index = listItems.findIndex((item) => item.id === id);
+    listItems[index].isOpened = true;
+    listItems[index].children.push(newIndex);
+    this.setState({
+      listItems: [
+        ...listItems,
+        {
+          id: newIndex,
+          title: "",
+          children: [],
+          isOpened: true,
+          isEditing: true,
+        },
+      ],
+      numOfItemsGenerated: this.state.numOfItemsGenerated + 1,
+    });
+  }
+
+  deleteChild(id, listItems) {
+    const index = listItems.findIndex((item) => item.id === id);
+    if (listItems[index].children) {
+      listItems[index].children.forEach((id) => {
+        this.deleteChild(id, listItems);
+      });
+    }
+    listItems.forEach((element) => {
+      if (element.children.includes(id)) {
+        element.children = element.children.filter((e) => e !== id);
       }
     });
-    if (isSimpleArray) {
-      if (isColumn) {
-        // this.state.column++;
-        console.log('isSimpleArray: ');
-        column++;
-        let jsx = listitem.map((item, index) => this.renderItem(index, row + index, column, item));
-        return jsx;
-      }
-      else {
-        // this.state.row++;
-        row++;
-        let jsx = listitem.map((item, index) => this.renderItem(index, row, column + index, item));
-        // return listitem.map((item, index) => this.renderItem(index, this.state.row, this.state.column + index, item))
-        return jsx;
-      }
+    if (id === 1) {
+      listItems[0].title = "";
+    } else {
+      listItems.splice(index, 1);
     }
-
-    //if(isSimpleArray) return <div className="itemColumns">{listitem.map((item, index) =><div className="item" key={index}>{item}</div>)}</div>
-    //return <div className="itemColumns">{listitem.map((item, index) =><div className="itemRow" key={index}>{Array.isArray(item) ?  recurTrial(item): <div className="Item">{item}</div>}</div>)}</div>
-    if (isColumn) {
-      // this.setState({
-      //   column: this.state.column+1
-      // });
-      // this.state.column++;
-      column++;
-      let jsx = <div className="itemColumns">{listitem.map((item, index) => <div className="itemRow" key={index}>{Array.isArray(item) ? this.recurTrial(item, false) : this.renderItem(index, row, column + index, item)}</div>)}</div>;
-      return jsx;
-      // return <div className="itemColumns">{listitem.map((item, index) => <div className="itemRow" key={index}>{Array.isArray(item) ? this.recurTrial(item, false) : this.renderItem(index, this.state.row, this.state.column + index, item)}</div>)}</div>
-    }
-    else {
-      // this.setState({
-      //   row: this.state.row+1
-      // });
-      row++;
-      let jsx = <div className="itemRow">{listitem.map((item, index) => <div className="itemColumns" key={index}>{Array.isArray(item) ? this.recurTrial(item) : this.renderItem(index, row + index, column, item)}</div>)}</div>;
-      // this.state.row++;
-      return jsx;
-      // return <div className="itemRow">{listitem.map((item, index) => <div className="itemColumns" key={index}>{Array.isArray(item) ? this.recurTrial(item) : this.renderItem(index, this.state.row + index, this.state.column, item)}</div>)}</div>
-    }
-
-    //  listitems: ["sa", ["b1", "b1"]]
-    //  <div className="itemColumns">
-    //    <div className="itemRow">
-    //      <div className="Item">sa</div>
-    //    </div>
-    //    <div className="itemRow">
-    //      <div className="Item">b1</div>
-    //      <div className="Item">b1</div>
-    //    </div>
-    //  </div>
-
-    // listitems: ["sa", [["b1", "b2"], "b1"]]
-    // <div className="itemColumns">
-    //   <div className="itemRow">
-    //     <div className="Item">sa</div>
-    //   </div>
-    //   <div className="itemRow">
-    //     <div className="itemColumns">
-    //       <div className="Item">b1</div>
-    //       <div className="Item">b2</div>
-    //     </div>
-    //     <div className="Item">b1</div>
-    //   </div>
-    // </div>
-
-    //return <div className="itemColumns">{listitem.map((item, index) => (<div key={index}> {Array.isArray(item) ?  
-    //  <div class="itemClass">{recur(item)}</div>: item}</div>))}</div>
+    return listItems;
   }
 
-  addChild() {
-    console.log('ds');
+  deleteChildren(id) {
+    let listItems = this.state.listItems.slice();
+    listItems = this.deleteChild(id, listItems);
+    this.setState({
+      listItems: listItems,
+    });
   }
 
-  handleClick(row, column) {
-    console.log('row, column: ', row, column);
-    const listitems1 = this.state.listitems.slice();
-    if(listitems1[row+1]){
-      listitems1[row+1].push("ssdds");
+  handleBlur(id, e) {
+    const listItems = this.state.listItems.slice();
+    const index = listItems.findIndex((item) => item.id === id);
+    if (listItems[index].isEditing) {
+      listItems[index].isEditing = false;
+      this.setState({
+        listItems: listItems,
+      });
     }
-    else{
-      //listitems1[row]=[listitems1, "ssdds"];
-      // console.log('listitems1[row]: ', listitems1[row][column]);
-
-      // listitems1[row][column]=["d", "fd"];
-    }
-    this.setState({ listitems: listitems1 });
-    // this.setState({listitems: ["saddssd", ["b1", ["b2", "b3"], ["b4", "b4", "b4"]]]});
   }
 
-  renderItem(index, row, column, item) {
+  handleChange(id, e) {
+    const listItems = this.state.listItems.slice();
+    const index = listItems.findIndex((item) => item.id === id);
+    listItems[index].title = e.target.value;
+    if (!listItems[index].isEditing) {
+      listItems[index].isEditing = true;
+    }
+    this.setState({
+      listItems: listItems,
+    });
+  }
+
+  handleCollapse(id, e) {
+    if (e.target.tagName !== "INPUT") {
+      const listItems = this.state.listItems.slice();
+      const index = listItems.findIndex((item) => item.id === id);
+      listItems[index].isOpened = !listItems[index].isOpened;
+      this.setState({
+        listItems: listItems,
+      });
+    }
+  }
+
+  editChild(id, e) {
+    e.stopPropagation();
+    const listItems = this.state.listItems.slice();
+    const index = listItems.findIndex((item) => item.id === id);
+    listItems[index].isEditing = !listItems[index].isEditing;
+    this.setState({
+      listItems: listItems,
+    });
+  }
+
+  renderChild(children) {
+    return (
+      <div className="itemsSibling">
+        {this.state.listItems
+          .filter((item) => children.includes(item.id))
+          .map((item) => (
+            <div className="itemsColumn" key={item.id}>
+              {this.renderItem(item)}
+              {item.children && (
+                <Collapse isOpened={item.isOpened}>
+                  {this.renderChild(item.children)}
+                </Collapse>
+              )}
+            </div>
+          ))}
+      </div>
+    );
+  }
+
+  renderList() {
+    const firstItem = this.state.listItems[0];
+
+    return (
+      <div className="itemsColumn">
+        {this.renderItem(firstItem)}
+        <Collapse isOpened={firstItem.isOpened}>
+          {this.renderChild(firstItem.children)}
+        </Collapse>
+      </div>
+    );
+  }
+
+  renderItem(item) {
     return (
       <Item
-        key={index}
-        rownum={row}
-        columnnum={column}
-        title={item}
-        onClick={() => this.handleClick(row, column)}
+        title={item.title}
+        isEditing={item.isEditing}
+        addChild={this.addChild.bind(this, item.id)}
+        deleteChild={() => this.deleteChildren(item.id)}
+        editChild={this.editChild.bind(this, item.id)}
+        handleBlur={this.handleBlur.bind(this, item.id)}
+        handleChange={this.handleChange.bind(this, item.id)}
+        handleCollapse={this.handleCollapse.bind(this, item.id)}
       />
     );
   }
 
   render() {
-    let jsx = <div className="listitem">
-      {this.recurTrial(this.state.listitems)}
-    </div>;
-    row = 0;
-    column = -1;
-    return jsx;
+    return (
+      <div className="itemListPage">
+        <header>
+          <h1>React Exercise</h1>
+          <p>Posted by Yung Wing Wa</p>
+        </header>
+        <div className="listitem">{this.renderList()}</div>
+      </div>
+    );
   }
 }

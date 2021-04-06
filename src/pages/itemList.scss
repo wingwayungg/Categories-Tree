@@ -1,33 +1,37 @@
-.listitem{
-    display: flex;
-    flex-direction: row;
-    .itemColumn{
-        display: flex;
-        flex-direction: column;
-        margin: 40px;
-    }
-    .itemColumns{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        .Item{
-            width: 40px;
-        }
-    }
-    .itemSbiling{
+.itemListPage{
+    min-height: 100vh;
+    h1 {
+        margin: 0;
+      }
+      .listitem {
         display: flex;
         flex-direction: row;
-    }
-    .itemClass{
-        display: flex;
-        flex-direction: row;
-        .itemColumns{
-            display: flex;
-            flex-direction: row;
+        overflow: auto;
+        .item {
+          display: flex;
+          align-items: center;
+          background-color: orange;
+          border-radius: 5px;
+          border-style: outset;
+          cursor: pointer;
+          padding: 5px;
+          height: 40px;
+          width: 300px;
+          margin-bottom: 10px;
+          span, input {
+            margin-right: auto;
+          }
+          input {
+            width: 150px;
+          }
         }
-    }
-}
-.itemRow{
-    display: flex;
-    flex-direction: row;
+        .itemsSibling {
+          display: flex;
+        }
+        .ReactCollapse--collapse {
+          transition: height 500ms;
+          position: relative;
+          left: 20px;
+        }
+      }
 }
