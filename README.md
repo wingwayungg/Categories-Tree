@@ -1,4 +1,4 @@
-# ![React + Categories-Tree Example App](project-logo.png)
+# ![React + Categories-Tree Example App]
 
 [![React Frontend](https://img.shields.io/badge/react-frondend-brightgreen)](http://realworld.io)
 
