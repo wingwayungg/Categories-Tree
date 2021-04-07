@@ -8,10 +8,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-To get the frontend running locally:
+To run the frontend locally:
 
 1. Clone this repo
-2. npm install to install all req'd dependencies
-3. npm start to start the local server (this project uses create-react-app)
+2. `npm install` to install all req'd dependencies
+3. `npm start` to start the local server (this project uses create-react-app)
 
 
